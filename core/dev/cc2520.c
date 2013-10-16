@@ -849,3 +849,91 @@ cc2520_set_cca_threshold(int value)
   RELEASE_LOCK();
 }
 /*---------------------------------------------------------------------------*/
+#define KEYLEN 16
+#define MAX_DATALEN 16
+#define MIN(a,b) ((a) < (b)? (a): (b))
+
+/* From http://www.aragosystems.com/images/stories/WiSMote/Datasheet/cc2520.pdf page 52
+ *
+ * p              // priority
+ * k[7:0]         // start address of key as 16*k
+ * c[3:0]         // number of trailing zeros for full block
+ * a[11:0]        // start address of memory
+ */
+typedef union ECBO_INS
+{
+  uint8_t flat[4];
+  struct {
+    uint8_t opcode : 7;
+    uint8_t p : 1;
+    uint16_t k : 8;
+    uint8_t c : 4; 
+    uint16_t a : 12;
+  } bits;
+} ecbo_ins_t;
+/*---------------------------------------------------------------------------*/
+int
+cc2520_aes_set_key(const uint8_t *key, int index)
+{
+  if(locked) {
+    return 0;
+  }
+
+  GET_LOCK();
+  switch(index) {
+  case 0:
+    CC2520_WRITE_RAM_REV(key, CC2520RAM_AESKEY0, KEYLEN);
+    break;
+  case 1:
+    CC2520_WRITE_RAM_REV(key, CC2520RAM_AESKEY1, KEYLEN);
+    break;
+  }
+  
+  RELEASE_LOCK();
+
+  return 1;
+}
+/*---------------------------------------------------------------------------*/
+int
+cc2520_aes_cipher(uint8_t *data, int len, int key_index)
+{
+  int i;
+  int block_len;
+  ecbo_ins_t ecbo_ins;
+
+  if(locked) {
+    return 0;
+  }
+
+  GET_LOCK();
+  ecbo_ins.bits.opcode = CC2520_INS_ECBO;
+  ecbo_ins.bits.p = 1;
+  ecbo_ins.bits.a = CC2520RAM_AESBUF;
+
+  switch(key_index) {
+  case 0:
+    ecbo_ins.bits.k = CC2520RAM_AESKEY0 >> 4;
+    break;
+  case 1:
+    ecbo_ins.bits.k = CC2520RAM_AESKEY1 >> 4;
+    break;
+  }
+
+  for(i = 0; i < len; i = i + MAX_DATALEN) {
+    // last block may need to be padded
+    block_len = MIN(len - i, MAX_DATALEN);
+    ecbo_ins.bits.c = MAX_DATALEN - block_len;
+    
+    CC2520_WRITE_RAM(data + i, CC2520RAM_AESBUF, block_len);
+
+    CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
+
+    /* Wait for the encryption to finish */
+    BUSYWAIT_UNTIL(!(status() & BV(CC2520_DPU_H)), RTIMER_SECOND / 100);
+    CC2520_READ_RAM(data, CC2520RAM_AESBUF, len);
+  }
+  RELEASE_LOCK();
+
+  return 1;
+}
+/*---------------------------------------------------------------------------*/

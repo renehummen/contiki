@@ -87,6 +87,9 @@ int cc2520_off(void);
 
 void cc2520_set_cca_threshold(int value);
 
+int cc2520_aes_set_key(const uint8_t *key, int index);
+int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
+
 /************************************************************************/
 /* Additional SPI Macros for the CC2520 */
 /************************************************************************/
@@ -172,6 +175,20 @@ void cc2520_set_cca_threshold(int value);
     CC2520_SPI_DISABLE();                                               \
   } while(0)
 
+/* Write reverse to RAM in the CC2520 */
+#define CC2520_WRITE_RAM_REV(buffer,adr,count)                          \
+  do {                                                                  \
+    uint8_t i;                                                          \
+    CC2520_SPI_ENABLE();                                                \
+    SPI_WRITE_FAST(CC2520_INS_MEMWR | (((adr)>>8) & 0xFF));             \
+    SPI_WRITE_FAST(((adr) & 0xFF));                                     \
+    for(i = (count); i > 0; i--) {                                      \
+      SPI_WRITE_FAST(((uint8_t*)(buffer))[i - 1]);                      \
+    }                                                                   \
+    SPI_WAITFORTx_ENDED();                                              \
+    CC2520_SPI_DISABLE();                                               \
+  } while(0)
+
 /* Read from RAM in the CC2520 */
 #define CC2520_READ_RAM(buffer,adr,count)                               \
   do {                                                                  \
@@ -183,6 +200,18 @@ void cc2520_set_cca_threshold(int value);
     for(i = 0; i < (count); i++) {                                      \
       SPI_READ(((uint8_t*)(buffer))[i]);                                \
     }                                                                   \
+    CC2520_SPI_DISABLE();                                               \
+  } while(0)
+
+/* Write to INStruction in the CC2520 */
+#define CC2520_WRITE_INS(buffer,count)                                  \
+  do {                                                                  \
+    uint8_t i;                                                          \
+    CC2520_SPI_ENABLE();                                                \
+    for(i = 0; i < (count); i++) {                                      \
+      SPI_WRITE_FAST(((uint8_t*)(buffer))[i]);                          \
+    }                                                                   \
+    SPI_WAITFORTx_ENDED();                                              \
     CC2520_SPI_DISABLE();                                               \
   } while(0)
 
