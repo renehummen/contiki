@@ -875,6 +875,9 @@ typedef union ECBO_INS
 int
 cc2520_aes_set_key(const uint8_t *key, int index)
 {
+  uint8_t tmp[KEYLEN] = {0};
+  int i;
+
   if(locked) {
     return 0;
   }
@@ -888,6 +891,13 @@ cc2520_aes_set_key(const uint8_t *key, int index)
     CC2520_WRITE_RAM_REV(key, CC2520RAM_AESKEY1, KEYLEN);
     break;
   }
+
+  /* DEBUG */
+  CC2520_READ_RAM(&tmp, CC2520RAM_AESKEY0, KEYLEN);
+  for(i = 0; i < KEYLEN; i++) {
+    printf("%x", tmp[i]);
+  }
+  printf("\n");
   
   RELEASE_LOCK();
 
@@ -897,6 +907,8 @@ cc2520_aes_set_key(const uint8_t *key, int index)
 int
 cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 {
+  uint8_t tmp[KEYLEN] = {0};
+  uint8_t stat = 0;
   int i;
   int block_len;
   ecbo_ins_t ecbo_ins;
@@ -926,10 +938,28 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     
     CC2520_WRITE_RAM(data + i, CC2520RAM_AESBUF, block_len);
 
+    /* DEBUG */
+    CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, MAX_DATALEN);
+    for(i = 0; i < MAX_DATALEN; i++) {
+      printf("%x", tmp[i]);
+    }
+    printf("\n");
+
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
 
+    /* DEBUG */
+    printf("sizeof(): %zu\n", sizeof(ecbo_ins_t));
+
+    /* DEBUG */
     /* Wait for the encryption to finish */
-    BUSYWAIT_UNTIL(!(status() & BV(CC2520_DPU_H)), RTIMER_SECOND / 100);
+    //BUSYWAIT_UNTIL(!(status() & BV(CC2520_DPU_H)), RTIMER_SECOND / 100);
+    do {
+      stat = status();
+      printf("status: %u\n", stat);
+      printf("BV(CC2520_DPU_H): %u\n", BV(CC2520_DPU_H));
+      printf("enc_status: %u\n", stat & BV(CC2520_DPU_H));
+    } while (!(stat & BV(CC2520_DPU_H)));
+
     CC2520_READ_RAM(data, CC2520RAM_AESBUF, len);
   }
   RELEASE_LOCK();
