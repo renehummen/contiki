@@ -974,6 +974,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     } while (stat & BV(CC2520_DPU_H));
 
     CC2520_READ_RAM(data + i, CC2520RAM_AESBUF, BLOCKLEN);
+    printf("data + i: ");
     for(j = 0; j < BLOCKLEN; j++) {
       printf("0x%02x ", data[i + j]);
     }
