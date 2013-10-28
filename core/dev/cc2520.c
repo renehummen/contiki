@@ -960,7 +960,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("status: %u\n", stat);
       printf("BV(CC2520_DPU_H): %u\n", BV(CC2520_DPU_H));
       printf("enc_status: %u\n", stat & BV(CC2520_DPU_H));
-    } while (!(stat & BV(CC2520_DPU_H)));
+    } while (stat & BV(CC2520_DPU_H));
 
     CC2520_READ_RAM(data + i, CC2520RAM_AESBUF, BLOCKLEN);
   }
