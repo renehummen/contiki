@@ -896,7 +896,7 @@ cc2520_aes_set_key(const uint8_t *key, int index)
   CC2520_READ_RAM(&tmp, CC2520RAM_AESKEY0, KEYLEN);
   printf("CC2520RAM_AESKEY0: ");
   for(i = 0; i < KEYLEN; i++) {
-    printf("%02x", tmp[i]);
+    printf("0x%02x ", tmp[i]);
   }
   printf("\n");
   
@@ -910,7 +910,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 {
   uint8_t tmp[BLOCKLEN] = {0};
   uint8_t stat = 0;
-  int i;
+  int i, j;
   int block_len;
   ecbo_ins_t ecbo_ins;
 
@@ -946,12 +946,13 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     /* DEBUG */
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
     printf("CC2520RAM_AESBUF: ");
-    for(i = 0; i < BLOCKLEN; i++) {
-      printf("%02x", tmp[i]);
+    for(j = 0; j < BLOCKLEN; j++) {
+      printf("0x%02x", tmp[j]);
     }
     printf("\n");
-    for (i = 0; i < 4; i++) {
-      printf("ecbo_ins: %x", ((uint8_t*)(ecbo_ins.flat))[i]);
+    printf("ecbo_ins: ");
+    for (j = 0; j < 4; j++) {
+      printf("0x%02x", ((uint8_t*)(ecbo_ins.flat))[j]);
     }
     printf("\n");
 
@@ -971,6 +972,9 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     } while (stat & BV(CC2520_DPU_H));
 
     CC2520_READ_RAM(data + i, CC2520RAM_AESBUF, BLOCKLEN);
+    for(j = 0; j < BLOCKLEN; j++) {
+      printf("0x%02x", data[i + j]);
+    }
   }
   RELEASE_LOCK();
 
