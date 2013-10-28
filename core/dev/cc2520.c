@@ -956,6 +956,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     }
     printf("\n");
 
+    ecbo_ins = { 0x73, 0x21, 0x02, 0x00 }
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
 
     /* DEBUG */
