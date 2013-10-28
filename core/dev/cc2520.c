@@ -912,13 +912,14 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
   uint8_t stat = 0;
   int i, j;
   int block_len;
-  ecbo_ins_t ecbo_ins;
+  ecbo_ins_t ecbo_ins = {{ 0x73, 0x21, 0x02, 0x00 }};
 
   if(locked) {
     return 0;
   }
 
   GET_LOCK();
+#if 0
   ecbo_ins.bits.opcode = CC2520_INS_ECBO;
   ecbo_ins.bits.p = 1;
   ecbo_ins.bits.a = CC2520RAM_AESBUF;
@@ -931,6 +932,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     ecbo_ins.bits.k = CC2520RAM_AESKEY1 >> 4;
     break;
   }
+#endif
 
   for(i = 0; i < len; i = i + BLOCKLEN) {
     // last block may need to be padded
@@ -938,9 +940,9 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
     /* DEBUG */
     printf("block_len: %i\n", block_len);
-
+#if 0
     ecbo_ins.bits.c = BLOCKLEN - block_len;
-    
+#endif    
     CC2520_WRITE_RAM(data + i, CC2520RAM_AESBUF, block_len);
 
     /* DEBUG */
@@ -951,7 +953,6 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     }
     printf("\n");
 
-    ecbo_ins = { 0x73, 0x21, 0x02, 0x00 }
     printf("ecbo_ins: ");
     for (j = 0; j < 4; j++) {
       printf("0x%02x ", ((uint8_t*)(ecbo_ins.flat))[j]);
