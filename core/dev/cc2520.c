@@ -850,7 +850,7 @@ cc2520_set_cca_threshold(int value)
 }
 /*---------------------------------------------------------------------------*/
 #define KEYLEN 16
-#define MAX_DATALEN 16
+#define BLOCKLEN 16
 #define MIN(a,b) ((a) < (b)? (a): (b))
 
 /* From http://www.aragosystems.com/images/stories/WiSMote/Datasheet/cc2520.pdf page 52
@@ -907,7 +907,7 @@ cc2520_aes_set_key(const uint8_t *key, int index)
 int
 cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 {
-  uint8_t tmp[KEYLEN] = {0};
+  uint8_t tmp[BLOCKLEN] = {0};
   uint8_t stat = 0;
   int i;
   int block_len;
@@ -931,10 +931,10 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     break;
   }
 
-  for(i = 0; i < len; i = i + MAX_DATALEN) {
+  for(i = 0; i < len; i = i + BLOCKLEN) {
     // last block may need to be padded
-    block_len = MIN(len - i, MAX_DATALEN);
-    ecbo_ins.bits.c = MAX_DATALEN - block_len;
+    block_len = MIN(len - i, BLOCKLEN);
+    ecbo_ins.bits.c = BLOCKLEN - block_len;
     
     CC2520_WRITE_RAM(data + i, CC2520RAM_AESBUF, block_len);
 
@@ -942,6 +942,8 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, MAX_DATALEN);
     for(i = 0; i < MAX_DATALEN; i++) {
       printf("%x", tmp[i]);
+    CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
+    for(i = 0; i < BLOCKLEN; i++) {
     }
     printf("\n");
 
@@ -960,7 +962,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("enc_status: %u\n", stat & BV(CC2520_DPU_H));
     } while (!(stat & BV(CC2520_DPU_H)));
 
-    CC2520_READ_RAM(data, CC2520RAM_AESBUF, len);
+    CC2520_READ_RAM(data + i, CC2520RAM_AESBUF, BLOCKLEN);
   }
   RELEASE_LOCK();
 
