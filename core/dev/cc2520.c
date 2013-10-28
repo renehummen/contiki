@@ -894,8 +894,9 @@ cc2520_aes_set_key(const uint8_t *key, int index)
 
   /* DEBUG */
   CC2520_READ_RAM(&tmp, CC2520RAM_AESKEY0, KEYLEN);
+  printf("CC2520RAM_AESKEY0: ");
   for(i = 0; i < KEYLEN; i++) {
-    printf("%x", tmp[i]);
+    printf("%02x", tmp[i]);
   }
   printf("\n");
   
@@ -934,23 +935,31 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
   for(i = 0; i < len; i = i + BLOCKLEN) {
     // last block may need to be padded
     block_len = MIN(len - i, BLOCKLEN);
+
+    /* DEBUG */
+    printf("block_len: %i\n", block_len);
+
     ecbo_ins.bits.c = BLOCKLEN - block_len;
     
     CC2520_WRITE_RAM(data + i, CC2520RAM_AESBUF, block_len);
 
     /* DEBUG */
-    CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, MAX_DATALEN);
-    for(i = 0; i < MAX_DATALEN; i++) {
-      printf("%x", tmp[i]);
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
+    printf("CC2520RAM_AESBUF: ");
     for(i = 0; i < BLOCKLEN; i++) {
+      printf("%02x", tmp[i]);
+    }
+    printf("\n");
+    for (i = 0; i < 4; i++) {
+      printf("ecbo_ins: %x", ((uint8_t*)(ecbo_ins.flat))[i]);
     }
     printf("\n");
 
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
 
     /* DEBUG */
-    printf("sizeof(): %zu\n", sizeof(ecbo_ins_t));
+    printf("sizeof(): %u\n", sizeof(ecbo_ins_t));
+    printf("BV(CC2520_DPU_H): %u\n", BV(CC2520_DPU_H));
 
     /* DEBUG */
     /* Wait for the encryption to finish */
@@ -958,7 +967,6 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     do {
       stat = status();
       printf("status: %u\n", stat);
-      printf("BV(CC2520_DPU_H): %u\n", BV(CC2520_DPU_H));
       printf("enc_status: %u\n", stat & BV(CC2520_DPU_H));
     } while (stat & BV(CC2520_DPU_H));
 
