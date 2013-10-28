@@ -950,13 +950,14 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("0x%02x ", tmp[j]);
     }
     printf("\n");
+
+    ecbo_ins = { 0x73, 0x21, 0x02, 0x00 }
     printf("ecbo_ins: ");
     for (j = 0; j < 4; j++) {
       printf("0x%02x ", ((uint8_t*)(ecbo_ins.flat))[j]);
     }
     printf("\n");
 
-    ecbo_ins = { 0x73, 0x21, 0x02, 0x00 }
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
 
     /* DEBUG */
