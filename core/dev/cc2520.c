@@ -947,12 +947,12 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
     printf("CC2520RAM_AESBUF: ");
     for(j = 0; j < BLOCKLEN; j++) {
-      printf("0x%02x", tmp[j]);
+      printf("0x%02x ", tmp[j]);
     }
     printf("\n");
     printf("ecbo_ins: ");
     for (j = 0; j < 4; j++) {
-      printf("0x%02x", ((uint8_t*)(ecbo_ins.flat))[j]);
+      printf("0x%02x ", ((uint8_t*)(ecbo_ins.flat))[j]);
     }
     printf("\n");
 
@@ -973,8 +973,9 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
     CC2520_READ_RAM(data + i, CC2520RAM_AESBUF, BLOCKLEN);
     for(j = 0; j < BLOCKLEN; j++) {
-      printf("0x%02x", data[i + j]);
+      printf("0x%02x ", data[i + j]);
     }
+    printf("\n");
   }
   RELEASE_LOCK();
 
