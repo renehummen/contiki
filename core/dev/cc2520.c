@@ -944,6 +944,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     ecbo_ins.bits.c = BLOCKLEN - block_len;
 #endif    
     CC2520_WRITE_RAM(data + i, CC2520RAM_AESBUF, block_len);
+    clock_wait(1);
 
     /* DEBUG */
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
@@ -960,6 +961,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     printf("\n");
 
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
+    clock_wait(1);
 
     /* DEBUG */
     printf("sizeof(): %u\n", sizeof(ecbo_ins_t));
@@ -975,6 +977,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     } while (stat & BV(CC2520_DPU_H));
 
     CC2520_READ_RAM(data + i, CC2520RAM_AESBUF, BLOCKLEN);
+    clock_wait(1);
     printf("data + i: ");
     for(j = 0; j < BLOCKLEN; j++) {
       printf("0x%02x ", data[i + j]);
