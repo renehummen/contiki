@@ -1001,6 +1001,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("0x%02x ", data[block_offset + j]);
     }
     printf("\n");
+#if AES_DEBUG
     CC2520_READ_RAM(&data[block_offset], CC2520RAM_AESBUF, BLOCKLEN);
     printf("data[block_offset] (output): ");
     for(j = 0; j < BLOCKLEN; j++) {
