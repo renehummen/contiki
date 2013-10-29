@@ -942,7 +942,8 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     printf("block_len: %i\n", block_len);
 #if 0
     ecbo_ins.bits.c = BLOCKLEN - block_len;
-#endif    
+#endif
+
     printf("data[i] (input): ");
     for(j = 0; j < BLOCKLEN; j++) {
       printf("0x%02x ", data[i + j]);
@@ -961,7 +962,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
     printf("ecbo_ins: ");
     for (j = 0; j < 4; j++) {
-      printf("0x%02x ", ((uint8_t*)(ecbo_ins.flat))[j]);
+      printf("0x%02x ", ecbo_ins.flat[j]);
     }
     printf("\n");
 
