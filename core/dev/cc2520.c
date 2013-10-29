@@ -918,7 +918,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
   uint8_t stat = 0;
   int block_offset, j;
   int block_len;
-  ecbo_ins_t ecbo_ins = {{ 0x73, 0x20, 0x02, 0x20 }};
+  ecbo_ins_t ecbo_ins;
 
   if(locked) {
     return 0;
@@ -926,7 +926,6 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
   GET_LOCK();
 
-#if 0
   ecbo_ins.bits.opcode = CC2520_INS_ECBO;
   ecbo_ins.bits.p = 1;
   ecbo_ins.bits.a = CC2520RAM_AESBUF;
@@ -939,15 +938,12 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     ecbo_ins.bits.k = CC2520RAM_AESKEY1 >> 4;
     break;
   }
-#endif
 
   for(block_offset = 0; block_offset < len; block_offset += BLOCKLEN) {
     // last block may need to be padded
     block_len = MIN(len - block_offset, BLOCKLEN);
-
-#if 0
     ecbo_ins.bits.c = BLOCKLEN - block_len;
-#endif
+
     CC2520_WRITE_RAM(&data[block_offset], CC2520RAM_AESBUF, block_len);
 
 #if AES_DEBUG
