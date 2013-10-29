@@ -200,6 +200,7 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     for(i = 0; i < (count); i++) {                                      \
       SPI_READ(((uint8_t*)(buffer))[i]);                                \
     }                                                                   \
+    clock_delay(1);                                                     \
     CC2520_SPI_DISABLE();                                               \
   } while(0)
 
