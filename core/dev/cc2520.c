@@ -864,12 +864,12 @@ cc2520_set_cca_threshold(int value)
 typedef union ECBO_INS
 {
   uint8_t flat[4];
-  struct {
-    unsigned int p : 1;
+  struct { // NOTE: bitfield does not work here, this is only documentation
     unsigned int opcode : 7;
+    unsigned int p : 1;
     unsigned int k : 8;
-    unsigned long a : 12;
-    unsigned long c : 4;
+    unsigned int c : 4;
+    unsigned int a : 12;
   } bits;
 } ecbo_ins_t;
 /*---------------------------------------------------------------------------*/
@@ -926,23 +926,24 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
   GET_LOCK();
 
-  ecbo_ins.bits.p = 1;
-  ecbo_ins.bits.opcode = CC2520_INS_ECBO;
-  ecbo_ins.bits.a = CC2520RAM_AESBUF;
+  ecbo_ins.flat[0] = CC2520_INS_ECBO | 1;
 
   switch(key_index) {
   case 0:
-    ecbo_ins.bits.k = CC2520RAM_AESKEY0 >> 4;
+    ecbo_ins.flat[1] = CC2520RAM_AESKEY0 >> 4;
     break;
   case 1:
-    ecbo_ins.bits.k = CC2520RAM_AESKEY1 >> 4;
+    ecbo_ins.flat[1] = CC2520RAM_AESKEY1 >> 4;
     break;
   }
+
+  ecbo_ins.flat[2] = (CC2520RAM_AESBUF >> 8) & 0x0F;
+  ecbo_ins.flat[3] = CC2520RAM_AESBUF & 0xFF;
 
   for(block_offset = 0; block_offset < len; block_offset += BLOCKLEN) {
     // last block may need to be padded
     block_len = MIN(len - block_offset, BLOCKLEN);
-    ecbo_ins.bits.c = BLOCKLEN - block_len;
+    ecbo_ins.flat[2] |= ((BLOCKLEN - block_len) << 4) & 0xF0;
 
     CC2520_WRITE_RAM(&data[block_offset], CC2520RAM_AESBUF, block_len);
 
