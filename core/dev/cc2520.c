@@ -928,14 +928,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     CC2520_WRITE_RAM(&data[block_offset], CC2520RAM_AESBUF, block_len);
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
 
-    /* DEBUG */
-    /* Wait for the encryption to finish */
-    //BUSYWAIT_UNTIL(!(status() & BV(CC2520_DPU_H)), RTIMER_SECOND / 100);
-    do {
-      stat = status();
-      printf("status: %u\n", stat);
-      printf("enc_status: %u\n", stat & BV(CC2520_DPU_H));
-    } while (stat & BV(CC2520_DPU_H));
+    BUSYWAIT_UNTIL(!(status() & (BV(CC2520_DPU_H) | BV(CC2520_DPU_L))), RTIMER_SECOND / 100);
 
     CC2520_READ_RAM(&data[block_offset], CC2520RAM_AESBUF, BLOCKLEN);
   }
