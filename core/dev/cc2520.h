@@ -185,7 +185,6 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     SPI_WRITE_FAST((adr) & 0xFF);                                       \
     for(i = (count); i > 0; i--) {                                      \
       SPI_WRITE_FAST(((uint8_t*)(buffer))[i - 1]);                      \
-      SPI_WAITFORTxREADY();                                             \
     }                                                                   \
     SPI_WAITFORTx_ENDED();                                              \
     CC2520_SPI_DISABLE();                                               \
@@ -213,7 +212,6 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     CC2520_SPI_ENABLE();                                                \
     for(i = 0; i < (count); i++) {                                      \
       SPI_WRITE_FAST(((uint8_t*)(buffer))[i]);                          \
-      SPI_WAITFORTxREADY();                                             \
     }                                                                   \
     SPI_WAITFORTx_ENDED();                                              \
     CC2520_SPI_DISABLE();                                               \
