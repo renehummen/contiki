@@ -910,7 +910,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 {
   uint8_t tmp[BLOCKLEN] = {0};
   uint8_t stat = 0;
-  int i, j;
+  int block_offset, j;
   int block_len;
   ecbo_ins_t ecbo_ins = {{ 0x73, 0x21, 0x02, 0x30 }};
 
@@ -919,6 +919,14 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
   }
 
   GET_LOCK();
+
+  /* DEBUG */
+  CC2520_READ_RAM(&tmp, CC2520RAM_AESKEY0, BLOCKLEN);
+  printf("CC2520RAM_AESBUF: ");
+  for(j = 0; j < BLOCKLEN; j++) {
+    printf("0x%02x ", tmp[j]);
+  }
+
 #if 0
   ecbo_ins.bits.opcode = CC2520_INS_ECBO;
   ecbo_ins.bits.p = 1;
@@ -934,22 +942,22 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
   }
 #endif
 
-  for(i = 0; i < len; i = i + BLOCKLEN) {
+  for(block_offset = 0; block_offset < len; block_offset += BLOCKLEN) {
     // last block may need to be padded
-    block_len = MIN(len - i, BLOCKLEN);
+    block_len = MIN(len - block_offset, BLOCKLEN);
 
     /* DEBUG */
     printf("block_len: %i\n", block_len);
 #if 0
     ecbo_ins.bits.c = BLOCKLEN - block_len;
 #endif
-
-    printf("data[i] (input): ");
+    printf("block_offset: %i\n", block_offset);
+    printf("data[block_offset] (input): ");
     for(j = 0; j < BLOCKLEN; j++) {
-      printf("0x%02x ", data[i + j]);
+      printf("0x%02x ", data[block_offset + j]);
     }
     printf("\n");
-    CC2520_WRITE_RAM(&data[i], CC2520RAM_AESBUF, block_len);
+    CC2520_WRITE_RAM(&data[block_offset], CC2520RAM_AESBUF, block_len);
     clock_wait(1);
 
     /* DEBUG */
@@ -983,11 +991,11 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("enc_status: %u\n", stat & BV(CC2520_DPU_H));
     } while (stat & BV(CC2520_DPU_H));
 
-    CC2520_READ_RAM(&data[i], CC2520RAM_AESBUF, BLOCKLEN);
-    clock_wait(1);
-    printf("data[i] (output): ");
+    CC2520_READ_RAM(&data[block_offset], CC2520RAM_AESBUF, BLOCKLEN);
+    printf("data[block_offset] (output): ");
     for(j = 0; j < BLOCKLEN; j++) {
-      printf("0x%02x ", data[i + j]);
+      printf("0x%02x ", data[block_offset + j]);
+    }
     }
     printf("\n");
   }
