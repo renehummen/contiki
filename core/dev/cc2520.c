@@ -864,11 +864,11 @@ typedef union ECBO_INS
 {
   uint8_t flat[4];
   struct {
-    uint8_t opcode : 7;
-    uint8_t p : 1;
-    uint16_t k : 8;
-    uint8_t c : 4; 
-    uint16_t a : 12;
+    unsigned int opcode : 7;
+    unsigned int p : 1;
+    unsigned int k : 8;
+    unsigned int c : 4; 
+    unsigned int a : 12;
   } bits;
 } ecbo_ins_t;
 /*---------------------------------------------------------------------------*/
