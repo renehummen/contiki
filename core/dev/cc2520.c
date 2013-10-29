@@ -912,7 +912,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
   uint8_t stat = 0;
   int i, j;
   int block_len;
-  ecbo_ins_t ecbo_ins = {{ 0x73, 0x21, 0x02, 0x00 }};
+  ecbo_ins_t ecbo_ins = {{ 0x73, 0x21, 0x02, 0x30 }};
 
   if(locked) {
     return 0;
@@ -966,6 +966,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     }
     printf("\n");
 
+    // ecbo_ins.flat = { 0x73, 0x21, 0x02, 0x30 };
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
     clock_wait(1);
 
