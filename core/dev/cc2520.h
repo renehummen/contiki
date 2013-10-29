@@ -196,7 +196,7 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     CC2520_SPI_ENABLE();                                                \
     SPI_WRITE(CC2520_INS_MEMRD | (((adr)>>8) & 0xFF));                  \
     SPI_WRITE(((adr) & 0xFF));                                          \
-    SPI_RXBUF;                                                          \
+    (void)SPI_RXBUF;                                                    \
     for(i = 0; i < (count); i++) {                                      \
       SPI_READ(((uint8_t*)(buffer))[i]);                                \
     }                                                                   \
