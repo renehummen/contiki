@@ -865,11 +865,12 @@ typedef union ECBO_INS
 {
   uint8_t flat[4];
   struct {
-    unsigned int opcode : 7;
     unsigned int p : 1;
+    unsigned int opcode : 7;
     unsigned int k : 8;
+    unsigned int a_high : 4;
     unsigned int c : 4; 
-    unsigned int a : 12;
+    unsigned int a_low : 8;
   } bits;
 } ecbo_ins_t;
 /*---------------------------------------------------------------------------*/
@@ -928,7 +929,8 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
   ecbo_ins.bits.opcode = CC2520_INS_ECBO;
   ecbo_ins.bits.p = 1;
-  ecbo_ins.bits.a = CC2520RAM_AESBUF;
+  ecbo_ins.bits.a_high = (CC2520RAM_AESBUF >> 8) & 0xFF;
+  ecbo_ins.bits.a_low = CC2520RAM_AESBUF & 0xFF;
 
   switch(key_index) {
   case 0:
