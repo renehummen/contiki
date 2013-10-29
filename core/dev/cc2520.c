@@ -852,6 +852,7 @@ cc2520_set_cca_threshold(int value)
 #define KEYLEN 16
 #define BLOCKLEN 16
 #define MIN(a,b) ((a) < (b)? (a): (b))
+#define AES_DEBUG 0
 
 /* From http://www.aragosystems.com/images/stories/WiSMote/Datasheet/cc2520.pdf page 52
  *
@@ -875,8 +876,10 @@ typedef union ECBO_INS
 int
 cc2520_aes_set_key(const uint8_t *key, int index)
 {
+#if AES_DEBUG
   uint8_t tmp[KEYLEN] = {0};
   int i;
+#endif /* AES_DEBUG */
 
   if(locked) {
     return 0;
@@ -892,12 +895,14 @@ cc2520_aes_set_key(const uint8_t *key, int index)
     break;
   }
 
+#if AES_DEBUG
   CC2520_READ_RAM(&tmp, CC2520RAM_AESKEY0, KEYLEN);
   printf("CC2520RAM_AESKEY0: ");
   for(i = 0; i < KEYLEN; i++) {
     printf("0x%02x ", tmp[i]);
   }
   printf("\n");
+#endif /* AES_DEBUG */
   
   RELEASE_LOCK();
 
@@ -907,7 +912,9 @@ cc2520_aes_set_key(const uint8_t *key, int index)
 int
 cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 {
+#if AES_DEBUG
   uint8_t tmp[BLOCKLEN] = {0};
+#endif /* AES_DEBUG */
   uint8_t stat = 0;
   int block_offset, j;
   int block_len;
@@ -919,11 +926,14 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
   GET_LOCK();
 
+#if AES_DEBUG
   CC2520_READ_RAM(&tmp, CC2520RAM_AESKEY0, BLOCKLEN);
   printf("CC2520RAM_AESBUF: ");
   for(j = 0; j < BLOCKLEN; j++) {
     printf("0x%02x ", tmp[j]);
   }
+  printf("\n");
+#endif /* AES_DEBUG */
 
 #if 0
   ecbo_ins.bits.opcode = CC2520_INS_ECBO;
@@ -950,6 +960,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     CC2520_WRITE_RAM(&data[block_offset], CC2520RAM_AESBUF, block_len);
     clock_wait(1);
 
+#if AES_DEBUG
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
     printf("CC2520RAM_AESBUF: ");
     for(j = 0; j < BLOCKLEN; j++) {
@@ -962,6 +973,7 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("0x%02x ", tmp[j]);
     }
     printf("\n");
+#endif /* AES_DEBUG */
 
     printf("ecbo_ins: ");
     for (j = 0; j < 4; j++) {
@@ -988,12 +1000,14 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
       printf("0x%02x ", data[block_offset + j]);
     }
     printf("\n");
+#if AES_DEBUG
     CC2520_READ_RAM(&data[block_offset], CC2520RAM_AESBUF, BLOCKLEN);
     printf("data[block_offset] (output): ");
     for(j = 0; j < BLOCKLEN; j++) {
       printf("0x%02x ", data[block_offset + j]);
     }
     printf("\n");
+#endif /* AES_DEBUG */
   }
   RELEASE_LOCK();
 
