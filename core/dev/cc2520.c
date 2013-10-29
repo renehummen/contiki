@@ -852,7 +852,7 @@ cc2520_set_cca_threshold(int value)
 #define KEYLEN 16
 #define BLOCKLEN 16
 #define MIN(a,b) ((a) < (b)? (a): (b))
-#define AES_DEBUG 0
+#define AES_DEBUG 1
 
 /* From http://www.aragosystems.com/images/stories/WiSMote/Datasheet/cc2520.pdf page 52
  *
