@@ -167,7 +167,7 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     uint8_t i;                                                          \
     CC2520_SPI_ENABLE();                                                \
     SPI_WRITE_FAST(CC2520_INS_MEMWR | (((adr)>>8) & 0xFF));             \
-    SPI_WRITE_FAST(((adr) & 0xFF));                                     \
+    SPI_WRITE_FAST((adr) & 0xFF);                                       \
     for(i = 0; i < (count); i++) {                                      \
       SPI_WRITE_FAST(((uint8_t*)(buffer))[i]);                          \
     }                                                                   \
@@ -181,7 +181,7 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     uint8_t i;                                                          \
     CC2520_SPI_ENABLE();                                                \
     SPI_WRITE_FAST(CC2520_INS_MEMWR | (((adr)>>8) & 0xFF));             \
-    SPI_WRITE_FAST(((adr) & 0xFF));                                     \
+    SPI_WRITE_FAST((adr) & 0xFF);                                       \
     for(i = (count); i > 0; i--) {                                      \
       SPI_WRITE_FAST(((uint8_t*)(buffer))[i - 1]);                      \
     }                                                                   \
@@ -195,7 +195,7 @@ int cc2520_aes_cipher(uint8_t *data, int len, int key_index);
     uint8_t i;                                                          \
     CC2520_SPI_ENABLE();                                                \
     SPI_WRITE(CC2520_INS_MEMRD | (((adr)>>8) & 0xFF));                  \
-    SPI_WRITE(((adr) & 0xFF));                                          \
+    SPI_WRITE((adr) & 0xFF);                                            \
     (void)SPI_RXBUF;                                                    \
     for(i = 0; i < (count); i++) {                                      \
       SPI_READ(((uint8_t*)(buffer))[i]);                                \
