@@ -958,7 +958,6 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
     ecbo_ins.bits.c = BLOCKLEN - block_len;
 #endif
     CC2520_WRITE_RAM(&data[block_offset], CC2520RAM_AESBUF, block_len);
-    clock_wait(1);
 
 #if AES_DEBUG
     CC2520_READ_RAM(&tmp, CC2520RAM_AESBUF, BLOCKLEN);
@@ -983,7 +982,6 @@ cc2520_aes_cipher(uint8_t *data, int len, int key_index)
 
     // ecbo_ins.flat = { 0x73, 0x21, 0x02, 0x30 };
     CC2520_WRITE_INS(ecbo_ins.flat, sizeof(ecbo_ins_t));
-    clock_wait(1);
 
     /* DEBUG */
     /* Wait for the encryption to finish */
